@@ -1,0 +1,9 @@
+{
+  "name": "CodingGameJS",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:gaboluque/CodingameJS.git",
+  "author": "gaboluque",
+  "license": "MIT",
+  "private": false
+}
