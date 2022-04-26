@@ -4,16 +4,21 @@ var inputs = readline().split(' ');
 const R = parseInt(inputs[0]); // number of rows.
 const C = parseInt(inputs[1]); // number of columns.
 const A = parseInt(inputs[2]); // number of rounds between the time the alarm countdown is activated and the time the alarm goes off.
-let goBack = false;
 
+let goBack = false; // Tells us if we should head back to the starting point
+
+// Helper function for our parent hash
 const getKey = (row, col) => `${row}x${col}`;
 
+// BFS algorithm
 const bfs = (map, start, targetVal) => {
+    // Initial setup
     const queue = [];
     const parentForCell = {};
 
     queue.push(start);
 
+    // Get the position neighbours (Top, right, bottom, left)
     const getNeighbours = (row, col) => {
         const neighbours = [
             { row: row - 1, col },
@@ -22,11 +27,13 @@ const bfs = (map, start, targetVal) => {
             { row, col: col - 1 },
         ];
     
+        // Filter any unwanted neighbour
         return neighbours.filter(({row: nRow, col: nCol}) => {
             return map[nRow][nCol] !== "#";
         });
     };
 
+    // We will get the first/next parent we should visit to get to our target
     const firstStep = (n) => {
         let v = n;
         const startKey = getKey(start.row, start.col);
@@ -37,21 +44,21 @@ const bfs = (map, start, targetVal) => {
     }
 
     while(queue.length > 0) {
-        const { row, col } = queue.shift();
-        const currentKey = getKey(row, col);
-        const neighbours = getNeighbours(row, col);
+        const { row, col } = queue.shift();                 // Get first element in queue
+        const currentKey = getKey(row, col);                // Create key
+        const neighbours = getNeighbours(row, col);         // Get current cell neighbours
 
         for(let i = 0; i < neighbours.length; i += 1) {
             const { row: nRow, col: nCol } = neighbours[i];
             const nKey = getKey(nRow, nCol);
             const nVal = map[nRow][nCol];
 
-            if(nKey in parentForCell) continue;
+            if(nKey in parentForCell) continue;             // If we already have the cell in our parents hash, skip
             parentForCell[nKey] = { key: currentKey, cell: [row, col] };
 
-            if(nVal === targetVal) return firstStep(neighbours[i]);
+            if(nVal === targetVal) return firstStep(neighbours[i]); // If the current cell value is our target, get the first step and return it
 
-            queue.push(neighbours[i]);
+            queue.push(neighbours[i]);                      // Add this neighbour to the queue
         } 
     }
 }
