@@ -1,14 +1,15 @@
 // https://www.codingame.com/ide/puzzle/the-labyrinth
 
-
  var inputs = readline().split(' ');
  const R = parseInt(inputs[0]); // number of rows.
  const C = parseInt(inputs[1]); // number of columns.
  const A = parseInt(inputs[2]); // number of rounds between the time the alarm countdown is activated and the time the alarm goes off.
+ let goBack = false;
+ let T;
  
  const getKey = (row, col) => `${row}x${col}`;
  
- const getPath = (map, start, target) => {
+ const bfs = (map, start, targetVal) => {
      const queue = [];
      const parentForCell = {};
      let targetCell;
@@ -42,7 +43,8 @@
              if(nKey in parentForCell) continue;
              parentForCell[nKey] = { key: currentKey, cell: [row, col] };
  
-             if(nVal === target && !targetCell) {
+             if(nVal === targetVal) {
+                 console.error(nVal);
                  targetCell = { key: nKey, cell: [nRow, nCol], val: nVal }
                  break;
              }
@@ -51,17 +53,29 @@
          }
      }
  
-     const path = [];
-     let currentCell = targetCell.cell;
-     let currentKey = targetCell.key;
-     while (currentKey !== startKey) {
-         path.push(currentCell);
-         const {key, cell} = parentForCell[currentKey];
-         currentCell = cell;
-         currentKey = key;
+     if(targetCell) {
+         const path = [];
+         let currentCell = targetCell.cell;
+         let currentKey = targetCell.key;
+         while (currentKey !== startKey) {
+             path.push(currentCell);
+             const {key, cell} = parentForCell[currentKey];
+             currentCell = cell;
+             currentKey = key;
+         }
+     
+         return path.reverse()[0];
      }
  
-     return path.reverse()[0];
+ }
+ 
+ const getPath = (map, start, goBack) => {
+     let goTo;
+     console.error("goBack", goBack);
+     if(goBack) goTo = bfs(map, start, "T");
+     else goTo = bfs(map, start, "?") || bfs(map, start, "C");
+     
+     return goTo;
  }
  
  // game loop
@@ -78,7 +92,11 @@
          currentMap.push([...ROW.split("")]);
      }
  
-     const nextStep = getPath(currentMap, { row: KR, col: KC }, "?");
+     console.error(currentMap.map((r) => r.join("")));
+ 
+     if(currentMap[KR][KC] === "C") goBack = true;
+ 
+     const nextStep = getPath(currentMap, { row: KR, col: KC }, goBack);
  
      console.error("Next step", nextStep);
  
